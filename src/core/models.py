@@ -54,12 +54,12 @@ class Station(Base):
 
     synchronized_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False,
+        nullable=True,
         comment="UTC time when the sync beat task synchronized this station.",
     )
-    updated_at: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
-        nullable=False,
+        nullable=True,
         comment="UTC time when this station was updated on the source website.",
     )
 
