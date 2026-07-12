@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 from src.core.config import DATABASE_URL
 from src.core.database import Base
-import src.core.models  # noqa: F401
+import src.core.models # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,7 +17,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", str(DATABASE_URL))
+config.set_main_option(
+    "sqlalchemy.url",
+    DATABASE_URL.render_as_string(hide_password=False),
+)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
