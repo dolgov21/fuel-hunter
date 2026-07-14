@@ -6,6 +6,9 @@ from sqlalchemy import URL
 load_dotenv()
 
 
+TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
+GDE_BENZ_BASE_URL = os.getenv("GDE_BENZ_BASE_URL", "https://gdebenz.ru")
+
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")

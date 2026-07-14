@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from src.core.models import StationStatus
+from src.core.schemas import StationStatus
 
 
 def to_camel(field_name: str) -> str:

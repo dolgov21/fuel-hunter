@@ -1,17 +1,20 @@
 from datetime import datetime
-from enum import StrEnum
+from core.schemas import StationStatus
 
-from sqlalchemy import DateTime, Enum, Float, ForeignKey, String, Text
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
-
-
-class StationStatus(StrEnum):
-    YES = "yes"
-    NO = "no"
-    QUEUE = "queue"
-    LOW = "low"
 
 
 class Location(Base):
@@ -65,4 +68,57 @@ class Station(Base):
 
     location: Mapped[Location] = relationship(
         back_populates="stations",
+    )
+    subscriptions: Mapped[list["UserStationSubscription"]] = relationship(
+        back_populates="station",
+        cascade="all, delete-orphan",
+    )
+
+
+class TelegramUser(Base):
+    __tablename__ = "telegram_users"
+
+    telegram_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        onupdate=func.now(),
+        nullable=True,
+    )
+
+    subscriptions: Mapped[list["UserStationSubscription"]] = relationship(
+        back_populates="telegram_user",
+        cascade="all, delete-orphan",
+    )
+
+
+class UserStationSubscription(Base):
+    __tablename__ = "user_station_subscriptions"
+    __table_args__ = (
+        UniqueConstraint("station_osm_id", "telegram_user_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    station_osm_id: Mapped[str] = mapped_column(
+        ForeignKey("stations.osm_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    telegram_user_id: Mapped[int] = mapped_column(
+        ForeignKey("telegram_users.telegram_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    station: Mapped["Station"] = relationship(back_populates="subscriptions")
+    telegram_user: Mapped["TelegramUser"] = relationship(
+        back_populates="subscriptions"
     )

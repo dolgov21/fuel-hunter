@@ -1,11 +1,14 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from src.core.config import DATABASE_URL, DATABASE_ECHO
 
 
-engine = create_async_engine(DATABASE_URL, echo=DATABASE_ECHO)
-async_session_maker = async_sessionmaker(engine)
+engine = create_engine(DATABASE_URL, echo=DATABASE_ECHO)
+session_maker = sessionmaker(engine)
+
+async_engine = create_async_engine(DATABASE_URL, echo=DATABASE_ECHO)
+async_session_maker = async_sessionmaker(async_engine)
 
 
 class Base(DeclarativeBase):
