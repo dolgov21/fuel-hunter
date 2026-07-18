@@ -10,6 +10,7 @@ class GdeBenzIntegration:
 
     async def get_external_status(self, osm_id: str) -> CommentResponseSchema:
         response = await self._client.request(
-            "GET", f"{self._base_url.rstrip('/')}/api/v1/stations/{osm_id}"
+            "GET",
+            f"{self._base_url.rstrip('/')}/api/comments/{osm_id}?",
         )
         return CommentResponseSchema.model_validate(response.json())
