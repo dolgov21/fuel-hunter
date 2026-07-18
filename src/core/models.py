@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.schemas import StationStatus
+from src.core.schemas import StationStatus
 
 from sqlalchemy import (
     DateTime,

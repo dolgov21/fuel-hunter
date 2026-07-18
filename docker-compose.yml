@@ -1,3 +1,16 @@
+x-app-env: &app-env
+  RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+  RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_HOST_PORT: 5672
+
+x-app-image: &app-image
+  image: fuel-hunter-app
+  build:
+    context: .
+    dockerfile: docker/app.Dockerfile
+  target: app
+
 services:
   postgres:
     image: postgres:16
@@ -10,6 +23,13 @@ services:
       - "${POSTGRES_HOST_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  tg-bot:
+    <<: *app-image
+    container_name: fh-tg-bot
+    command: python src/tg_bot/run.py
+    depends_on:
+      - postgres
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -25,6 +45,24 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  worker:
+    <<: *app-image
+    container_name: fh-worker
+    command: celery --app src.celery.celery_app worker --pool threads --loglevel INFO
+    environment: *app-env
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  beat:
+    <<: *app-image
+    container_name: fh-beat
+    command: celery --app src.celery.celery_app beat --loglevel=INFO
+    environment: *app-env
+    depends_on:
+      - postgres
+      - rabbitmq
+
 volumes:
-    rabbitmq_data:
-    postgres_data:
+  rabbitmq_data:
+  postgres_data:
