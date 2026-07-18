@@ -2,7 +2,8 @@ x-app-service: &app-service
   image: fuel-hunter-app
   env_file:
     - .env
-    - .env.docker
+  volumes:
+    - .:/code
 
 services:
   postgres:
@@ -16,6 +17,11 @@ services:
       - "${POSTGRES_HOST_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   tg-bot:
     <<: *app-service
@@ -24,9 +30,10 @@ services:
       dockerfile: docker/app.Dockerfile
       target: app
     container_name: fh-tg-bot
-    command: python src/tg_bot/run.py
+    command: sh -c "alembic upgrade head && python src/tg_bot/run.py"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -41,22 +48,31 @@ services:
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   worker:
     <<: *app-service
     container_name: fh-worker
     command: celery --app src.celery.celery_app worker --pool threads --loglevel INFO
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   beat:
     <<: *app-service
     container_name: fh-beat
     command: celery --app src.celery.celery_app beat --loglevel=INFO
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   rabbitmq_data:

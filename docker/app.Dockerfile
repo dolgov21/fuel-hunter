@@ -8,7 +8,7 @@ WORKDIR /code
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --frozen --no-install-project
 
 FROM python:3.14-slim AS app
 

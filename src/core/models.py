@@ -2,11 +2,11 @@ from datetime import datetime
 from src.core.schemas import StationStatus
 
 from sqlalchemy import (
+    BigInteger,
     DateTime,
     Enum,
     Float,
     ForeignKey,
-    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -78,22 +78,23 @@ class Station(Base):
 class TelegramUser(Base):
     __tablename__ = "telegram_users"
 
-    telegram_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    telegram_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    phone_number: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str | None] = mapped_column(nullable=True)
+    username: Mapped[str | None] = mapped_column(nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
     )
-    updated_at: Mapped[datetime | None] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
+        server_default=func.now(),
         onupdate=func.now(),
-        nullable=True,
+        nullable=False,
     )
 
     subscriptions: Mapped[list["UserStationSubscription"]] = relationship(
@@ -112,6 +113,7 @@ class UserStationSubscription(Base):
         nullable=False,
     )
     telegram_user_id: Mapped[int] = mapped_column(
+        BigInteger,
         ForeignKey("telegram_users.telegram_id", ondelete="CASCADE"),
         nullable=False,
     )

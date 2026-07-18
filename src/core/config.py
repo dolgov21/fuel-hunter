@@ -13,7 +13,7 @@ POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-POSTGRES_HOST_PORT = int(os.getenv("POSTGRES_HOST_PORT", "5432"))
+POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", os.getenv("POSTGRES_HOST_PORT", "5432")))
 
 DATABASE_ECHO = os.getenv("DATABASE_ECHO", False)
 DATABASE_URL = URL.create(
@@ -21,7 +21,7 @@ DATABASE_URL = URL.create(
     username=POSTGRES_USER,
     password=POSTGRES_PASSWORD,
     host=POSTGRES_HOST,
-    port=POSTGRES_HOST_PORT,
+    port=POSTGRES_PORT,
     database=POSTGRES_DB,
 )
 

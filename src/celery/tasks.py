@@ -3,6 +3,7 @@ import asyncio
 import httpx
 from loguru import logger
 from sqlalchemy import select
+from src.crawler.client import Client
 
 from src.celery.celery_app import app
 from src.core.config import TG_BOT_TOKEN
