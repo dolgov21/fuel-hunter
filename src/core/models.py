@@ -104,9 +104,7 @@ class TelegramUser(Base):
 
 class UserStationSubscription(Base):
     __tablename__ = "user_station_subscriptions"
-    __table_args__ = (
-        UniqueConstraint("station_osm_id", "telegram_user_id"),
-    )
+    __table_args__ = (UniqueConstraint("station_osm_id", "telegram_user_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     station_osm_id: Mapped[str] = mapped_column(
@@ -119,6 +117,4 @@ class UserStationSubscription(Base):
     )
 
     station: Mapped["Station"] = relationship(back_populates="subscriptions")
-    telegram_user: Mapped["TelegramUser"] = relationship(
-        back_populates="subscriptions"
-    )
+    telegram_user: Mapped["TelegramUser"] = relationship(back_populates="subscriptions")

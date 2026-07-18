@@ -8,7 +8,6 @@ from src.celery.celery_app import app
 from src.core.config import TG_BOT_TOKEN
 from src.core.database import session_maker
 from src.core.models import Station, TelegramUser, UserStationSubscription
-from src.crawler.client import Client
 from src.crawler.integration import GdeBenzIntegration
 
 _TELEGRAM_API_BASE_URL = "https://api.telegram.org"
@@ -68,9 +67,7 @@ def send_notifications_task(osm_id: str) -> None:
             expires=15 * 60,
         )
 
-    logger.info(
-        f"Scheduled {len(subscriber_ids)} notifications for station {osm_id}"
-    )
+    logger.info(f"Scheduled {len(subscriber_ids)} notifications for station {osm_id}")
 
 
 @app.task(

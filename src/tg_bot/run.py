@@ -14,7 +14,6 @@ from src.core.models import Station, TelegramUser, UserStationSubscription
 bot = Bot(token=TG_BOT_TOKEN)
 dp = Dispatcher()
 
-logger.add("tg_bot.log", rotation="10 MB")
 
 async def _create_telegram_user(telegram_id: int, name: str) -> None:
     async with async_session_maker() as session:

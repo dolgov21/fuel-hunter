@@ -6,4 +6,3 @@ class StationStatus(StrEnum):
     NO = "no"
     QUEUE = "queue"
     LOW = "low"
-
