@@ -14,6 +14,8 @@ from src.core.models import Station, TelegramUser, UserStationSubscription
 bot = Bot(token=TG_BOT_TOKEN)
 dp = Dispatcher()
 
+logger.add("tg_bot.log", rotation="10 MB")
+
 async def _create_telegram_user(telegram_id: int, name: str) -> None:
     async with async_session_maker() as session:
         statement = (
@@ -64,6 +66,8 @@ async def command_start_handler(message: types.Message):
 
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
+
+    logger.info("Starting Telegram bot")
     await dp.start_polling(bot)
 
 
