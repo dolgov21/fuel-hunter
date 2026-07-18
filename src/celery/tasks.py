@@ -1,4 +1,5 @@
 import asyncio
+from html import escape
 
 import httpx
 from loguru import logger
@@ -22,17 +23,21 @@ _STATUS_LABELS = {
 
 def _build_notification_text(station: Station) -> str:
     status = station.status.value if station.status is not None else "unknown"
-    status_label = _STATUS_LABELS.get(status, status)
+    status_label = escape(_STATUS_LABELS.get(status, status))
 
     lines = [
-        "Статус АЗС изменился.",
-        f"АЗС: {station.name}",
-        f"Статус: {status_label}",
+        "⚡ Статус АЗС изменился.",
+        "",
+        f"<b>{status_label}</b>",
+        "",
+        "Детали:",
     ]
-    if station.brand:
-        lines.insert(2, f"Бренд: {station.brand}")
     if station.details:
-        lines.append(f"Детали: {station.details}")
+        lines.append(f"- адрес: <code>{escape(station.details)}</code>")
+    if station.brand:
+        lines.append(f"- бренд: {escape(station.brand)}")
+    if station.name != station.brand:
+        lines.append(f"- АЗС: {escape(station.name)}")
 
     return "\n".join(lines)
 
@@ -93,7 +98,11 @@ def send_telegram_notification_task(
         with httpx.Client(timeout=10.0) as client:
             response = client.post(
                 endpoint,
-                json={"chat_id": telegram_id, "text": message_text},
+                json={
+                    "chat_id": telegram_id,
+                    "text": message_text,
+                    "parse_mode": "HTML",
+                },
             )
     except httpx.HTTPError:
         raise
