@@ -1,5 +1,9 @@
 x-app-service: &app-service
   image: fuel-hunter-app
+  build:
+    context: .
+    dockerfile: docker/app.Dockerfile
+    target: app
   env_file:
     - .env
   volumes:
@@ -25,10 +29,6 @@ services:
 
   tg-bot:
     <<: *app-service
-    build:
-      context: .
-      dockerfile: docker/app.Dockerfile
-      target: app
     container_name: fh-tg-bot
     command: sh -c "alembic upgrade head && python src/tg_bot/run.py"
     depends_on:
