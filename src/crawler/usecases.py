@@ -45,7 +45,7 @@ class SyncStationsUseCase:
                         and external_station.status == StationStatus.NO
                     )
                     
-                    if not unknown_status and not initial_no_fuel:
+                    if not unknown_status and not initial_no_fuel and external_station.confidence_base > 0.5:
                         changed_station_ids.append(system_station.osm_id)
 
                     logger.info(
