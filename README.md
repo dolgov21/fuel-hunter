@@ -15,3 +15,7 @@ celery --app src.celery.celery_app beat
 ```shell
 psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -p $POSTGRES_HOST_PORT < src/sql/alatyr-stations.sql
 ```
+
+```shell
+docker compose exec -T postgres psql -U denis -d fuel_hunter < src/sql/alatyr-stations.sql
+```
