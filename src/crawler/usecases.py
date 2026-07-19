@@ -6,6 +6,7 @@ from sqlalchemy import select
 from src.celery.tasks import dispatch_send_notifications_task
 from src.core.database import async_session_maker
 from src.core.models import Station
+from src.core.schemas import StationStatus
 from src.crawler.integration import GdeBenzIntegration
 
 
@@ -26,14 +27,26 @@ class SyncStationsUseCase:
                 )
 
                 if system_station.status != external_station.status:
+                    previous_status = system_station.status
+
                     system_station.status = external_station.status
                     system_station.confidence_base = external_station.confidence_base
                     system_station.updated_at = external_station.updated
                     system_station.fuels_now = external_station.fuels_now
                     system_station.details = external_station.addr
                     system_station.updated_at = datetime.now(UTC)
+
+                    # Не уведомляем о неизвестном статусе None
+                    unknown_status = external_station.status is None
                     
-                    changed_station_ids.append(system_station.osm_id)
+                    # Не уведомляем о "топлива нет" после None
+                    initial_no_fuel = (
+                        previous_status is None
+                        and external_station.status == StationStatus.NO
+                    )
+                    
+                    if not unknown_status and not initial_no_fuel:
+                        changed_station_ids.append(system_station.osm_id)
 
                     logger.info(
                         f"Station {system_station.osm_id} updated to {external_station.status}"
