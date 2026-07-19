@@ -18,11 +18,12 @@ _STATUS_LABELS = {
     "no": "топлива нет",
     "queue": "есть очередь",
     "low": "мало топлива",
+    None: "зафиксировано изменение, данные уточняются",
 }
 
 
 def _build_notification_text(station: Station) -> str:
-    status = station.status.value if station.status is not None else "unknown"
+    status = station.status.value if station.status is not None else None
     status_label = escape(_STATUS_LABELS.get(status, status))
 
     lines = [

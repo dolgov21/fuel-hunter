@@ -31,7 +31,8 @@ class SyncStationsUseCase:
                     system_station.updated_at = external_station.updated
                     system_station.fuels_now = external_station.fuels_now
                     system_station.details = external_station.addr
-
+                    system_station.updated_at = datetime.now(UTC)
+                    
                     changed_station_ids.append(system_station.osm_id)
 
                     logger.info(
